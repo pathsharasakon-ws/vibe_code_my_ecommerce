@@ -56,6 +56,7 @@ An interactive web application designed to gamify piano practice, featuring real
 
 ### Steps to Run Locally
 1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/your-username/piano-gamified-app.git](https://github.com/your-username/piano-gamified-app.git)
-   cd piano-gamified-app
+\`\`\`bash
+git clone https://github.com/your-username/piano-gamified-app.git
+cd piano-gamified-app
+\`\`\`
