@@ -3,139 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piano Gamified Dashboard</title>
+    <title>Piano Gamified Web Portal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         /* 🎨 Cyberpunk Color Palette Constants & UI Reset */
         :root {
-            --bg-purple: #8d00ff;       /* Main Deep Purple Background */
-            --neon-mint: #00e0ba;       /* Neon Cyan for Accents & Active State */
-            --vibrant-yellow: #ffcf00;  /* Yellow Gold for Streaks & Crown */
-            --hot-pink: #ff007f;        /* Loud Hot Pink for Primary Action Button */
-            --nav-bg: #1f003a;          /* Darker purple for the bottom nav bar */
+            --bg-purple: #8d00ff;       
+            --neon-mint: #00e0ba;       
+            --vibrant-yellow: #ffcf00;  
+            --hot-pink: #ff007f;        
+            --nav-bg: #120024;          
+            --panel-bg: rgba(31, 0, 58, 0.4);
         }
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a0030 0%, var(--bg-purple) 100%);
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0d001a 0%, #250046 100%);
             color: white;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* 🔝 FIXED NAVIGATION HEADER: Absolute Window Grid System */
+        .top-header {
+            width: 100%;
+            height: 70px;
+            background-color: var(--nav-bg);
+            border-bottom: 2px solid #2d0054;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        /* ปล่อยอิสระซ้ายและขวา ให้ขยายตามของข้างใน */
+        .header-left, .header-right {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .header-left { justify-content: flex-start; }
+        .header-right { justify-content: flex-end; }
+
+        /* 🎯 ล็อกตระหง่านอยู่กึ่งกลางหน้าจอแบบสมบูรณ์ 100% ไม่ขึ้นกับความยาวคำรอบข้าง */
+        .header-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* 📱 Simulated Smartphone Container Layout */
-        .phone-container {
-            width: 375px;
-            height: 812px;
-            background-color: #120024;
-            border-radius: 40px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            overflow: hidden;
-            position: relative;
+        /* Top Left Home Nav Link Style & Glow Active Effect */
+        .top-home-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
             display: flex;
-            flex-direction: column;
-            padding: 24px 24px 90px 24px;
-            box-sizing: border-box;
-            border: 4px solid #2d0054;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.5;
+            transition: opacity 0.2s, color 0.2s, transform 0.2s;
         }
 
-        /* 🔝 Top Header Bar: Streak Counter & Subscription Status Gating */
-        .top-bar {
+        /* บังคับให้ปุ่ม Home เรืองแสงสีเขียวมิ้นต์ตอนเริ่มหน้าแรก */
+        .top-home-btn.active {
+            opacity: 1;
+            color: var(--neon-mint);
+            text-shadow: 0 0 10px var(--neon-mint);
+        }
+
+        .top-home-btn:hover {
+            opacity: 1;
+            color: var(--neon-mint);
+            transform: translateX(2px);
+        }
+
+        /* Stats Sub-Container (Centered Panel) */
+        .header-stats {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-top: 10px;
+            gap: 28px;
         }
 
         .streak-badge {
             color: var(--vibrant-yellow);
-            font-weight: bold;
-            font-size: 1.1rem;
+            font-weight: 800;
+            font-size: 1.3rem;
             text-shadow: 0 0 10px rgba(255, 207, 0, 0.6);
-            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .token-badge {
+            color: var(--neon-mint);
+            font-weight: 800;
+            font-size: 1.3rem;
+            text-shadow: 0 0 10px rgba(0, 224, 186, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .status-heart {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
             cursor: pointer;
             user-select: none;
+            transition: transform 0.2s;
+        }
+        
+        .status-heart:hover {
+            transform: scale(1.1);
         }
 
-        /* 👤 Central Focal Point: Large Character Avatar Segment */
+        /* 🖥️ Main Desktop Content Layout (Widescreen Center) */
+        .main-container {
+            margin-top: 70px; 
+            margin-bottom: 80px;   
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 👤 Centered Avatar Display Panel */
         .avatar-section {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 20px;
-            flex: 1;
-            justify-content: center;
+            margin-bottom: 25px;   
+            background: var(--panel-bg);
+            padding: 35px 55px;    
+            border-radius: 30px;
+            border: 1px solid rgba(0, 224, 186, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
         }
 
         .crown-icon {
-            font-size: 4rem;
-            margin-bottom: -5px;
+            font-size: 5rem;
+            color: var(--vibrant-yellow);
+            filter: drop-shadow(0 0 15px var(--vibrant-yellow));
+            margin-bottom: 0px;
             animation: floatCrown 3s ease-in-out infinite;
         }
 
         .avatar-character {
-            width: 160px;
-            height: 160px;
-            background: radial-gradient(circle, rgba(0, 224, 186, 0.3) 0%, transparent 70%);
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(0, 224, 186, 0.25) 0%, transparent 75%);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 6rem;
+            font-size: 7rem;
+            color: var(--neon-mint);
+            filter: drop-shadow(0 0 25px rgba(0, 224, 186, 0.4));
         }
 
         .username {
-            margin-top: 20px;
-            font-size: 1.3rem;
-            font-weight: 600;
+            margin-top: 24px;
+            font-size: 1.4rem;
+            font-weight: 800;
             letter-spacing: 1px;
-            opacity: 0.95;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
         }
 
-        /* 🎹 High-Priority Primary Action Trigger: Start Practice */
+        /* 🎹 Primary Action Trigger Button */
         .btn-start-practice {
             background-color: var(--hot-pink);
             color: white;
             border: none;
-            padding: 22px;
-            border-radius: 24px;
+            padding: 20px 60px; 
+            border-radius: 30px;
             font-size: 1.5rem;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 0 25px var(--hot-pink);
+            box-shadow: 0 0 30px var(--hot-pink);
             transition: transform 0.2s, box-shadow 0.2s;
-            margin-bottom: 60px; /* Added extra space since daily mission card is removed */
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 15px;      
+            margin-bottom: 20px;   
         }
 
         .btn-start-practice:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 35px var(--hot-pink);
+            transform: scale(1.05);
+            box-shadow: 0 0 45px var(--hot-pink);
         }
 
-        /* 🗺️ 4-Button Bottom Navigation Bar System */
+        /* 🗺️ Expanded Persistent Bottom Navigation Bar (4 Items Balanced Layout) */
         .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            left: 0;
             width: 100%;
             height: 80px;
             background-color: var(--nav-bg);
             border-top: 2px solid #2d0054;
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             align-items: center;
-            padding-bottom: 10px;
-            box-sizing: border-box;
+            gap: 80px; 
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
         }
 
         .nav-item {
@@ -144,14 +242,17 @@
             align-items: center;
             color: white;
             text-decoration: none;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            opacity: 0.6;
-            transition: opacity 0.2s, transform 0.2s;
+            opacity: 0.5;
+            transition: opacity 0.2s, transform 0.2s, color 0.2s;
             cursor: pointer;
             background: none;
             border: none;
-            padding: 0;
+            padding: 10px 20px;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .nav-item:hover, .nav-item.active {
@@ -162,10 +263,10 @@
 
         .nav-icon {
             font-size: 1.4rem;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            transition: filter 0.2s;
         }
 
-        /* Active highlight for the item corresponding to the current screen */
         .nav-item.active .nav-icon {
             filter: drop-shadow(0 0 8px var(--neon-mint));
         }
@@ -173,63 +274,67 @@
         /* Smooth Floating Animation for Cosmetic Crowns */
         @keyframes floatCrown {
             0% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-10px); }
             100% { transform: translateY(0px); }
         }
     </style>
 </head>
 <body>
 
-    <div class="phone-container">
-        <!-- 🔝 Top Bar: Live Tracking Badges -->
-        <div class="top-bar">
-            <div class="streak-badge">🔥 12 DAYS STREAK</div>
+    <header class="top-header">
+        <div class="header-left">
+            <button class="top-home-btn active" id="topHomeBtn" onclick="navigateTo('home', event)">
+                <i class="fa-solid fa-house"></i> Home
+            </button>
+        </div>
+        
+        <div class="header-center">
+            <div class="header-stats">
+                <div class="streak-badge"><i class="fa-solid fa-fire"></i> 12</div>
+                <div class="token-badge"><i class="fa-solid fa-coins"></i> 250</div>
+            </div>
+        </div>
+        
+        <div class="header-right">
             <div class="status-heart" id="statusHeart" onclick="togglePlanSimulation()">🌈💖</div>
         </div>
+    </header>
 
-        <!-- 👤 Center Component: Large Profile Display Elements -->
+    <main class="main-container">
         <div class="avatar-section">
-            <div class="crown-icon">👑</div>
-            <div class="avatar-character">🎹</div>
+            <div class="crown-icon"><i class="fa-solid fa-crown"></i></div>
+            <div class="avatar-character"><i class="fa-solid fa-icons"></i></div>
             <div class="username">@kru_ne_piano</div>
         </div>
 
-        <!-- 🎹 High-Contrast Primary Call to Action Trigger -->
-        <button class="btn-start-practice">🎹 Start Practice</button>
+        <button class="btn-start-practice">
+            <i class="fa-solid fa-music"></i> Start Practice
+        </button>
+    </main>
 
-        <!-- 🗺️ 4-Button Bottom Navigation Dock -->
-        <nav class="bottom-nav">
-            <!-- 1. Scoreboard Button -->
-            <button class="nav-item" onclick="navigateTo('scoreboard')">
-                <div class="nav-icon">🏆</div>
-                <div>Scores</div>
-            </button>
+    <nav class="bottom-nav">
+        <button class="nav-item" onclick="navigateTo('scoreboard', event)">
+            <i class="nav-icon fa-solid fa-trophy"></i>
+            <div>Scores</div>
+        </button>
 
-            <!-- 2. Profile & Customization Button (Active on Dashboard) -->
-            <button class="nav-item active" onclick="navigateTo('profile')">
-                <div class="nav-icon">👤</div>
-                <div>Profile</div>
-            </button>
+        <button class="nav-item" onclick="navigateTo('profile', event)">
+            <i class="nav-icon fa-solid fa-user-astronaut"></i>
+            <div>Profile</div>
+        </button>
 
-            <!-- 3. Missions Button -->
-            <button class="nav-item" onclick="navigateTo('missions')">
-                <div class="nav-icon">🎯</div>
-                <div>Missions</div>
-            </button>
+        <button class="nav-item" onclick="navigateTo('missions', event)">
+            <i class="nav-icon fa-solid fa-bullseye"></i>
+            <div>Missions</div>
+        </button>
 
-            <!-- 4. Settings Button -->
-            <button class="nav-item" onclick="navigateTo('settings')">
-                <div class="nav-icon">⚙️</div>
-                <div>Settings</div>
-            </button>
-        </nav>
-    </div>
+        <button class="nav-item" onclick="navigateTo('settings', event)">
+            <i class="nav-icon fa-solid fa-gear"></i>
+            <div>Settings</div>
+        </button>
+    </nav>
 
     <script>
-        /**
-         * 🔮 Interactive State Simulation Model
-         * Toggles between Premium Rainbow Heart and Free Tier Heart Quotas when clicked.
-         */
         function togglePlanSimulation() {
             const heartElement = document.getElementById('statusHeart');
             if (heartElement.innerText === '🌈💖') {
@@ -239,20 +344,22 @@
             }
         }
 
-        /**
-         * 🗺️ Navigation Handler Simulation
-         * Logs target actions to console. Ready to be linked to router logic later.
-         */
-        function navigateTo(targetScreen) {
+        // อัปเดตฟังก์ชันกดเปลี่ยนหน้า ให้ย้ายแสงเรืองแสงนีออนได้เสถียร 100%
+        function navigateTo(targetScreen, e) {
             console.log(`Navigating to: ${targetScreen.toUpperCase()} screen.`);
             
-            // UI Visual Update: Handle active navigation tab state dynamically
+            // ล้างสถานะเรืองแสง active ออกจากทุกปุ่มทั้งบนและล่าง
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
+            document.getElementById('topHomeBtn').classList.remove('active');
             
-            // Highlight clicked item
-            event.currentTarget.classList.add('active');
+            // เช็คว่าหน้าเป้าหมายคืออะไรแล้วสั่งเรืองแสงให้ถูกปุ่ม
+            if (targetScreen === 'home') {
+                document.getElementById('topHomeBtn').classList.add('active');
+            } else if (e && e.currentTarget) {
+                e.currentTarget.classList.add('active');
+            }
         }
     </script>
 </body>
